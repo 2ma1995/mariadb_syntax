@@ -11,7 +11,7 @@ alter table author add column age tinyint;
 alter table author modify column age tinyint;
 insert into author (id, age) values(5,200);
 
--- decimal실습
+-- decimal실습(고정소수점)
 -- decimal(정수부자릿수,소수부자릿수)
 alter table post add column price decimal(10,3);
 -- decimal 소수점 초과후  값 짤림 현상
@@ -45,3 +45,40 @@ select * from author where id not(id < 2 or id > 4);
 select * from author where id in(2,3,4);
 -- select * from author where id in(select author_id from post);
 select * from author where id not in(1,5); --가정)전체데이터가 1~5까지 밖에 없음.
+
+-- like : 특정문자를 포함하는 데이터를 조회하기 위해 사용하는 키워드
+select* from post where title like '%h'; --h로 끝나는 title검색
+select* from post where title like 'h%'; --h로 시작하는 title검색
+select* from post where title like '%h%'; -- 단어의 중간에 h라는 키워드가 있는 경우 검색
+
+select * from author where name like '홍%'
+select * from author where name like '%동'
+select * from author where name like '%길%%'
+
+-- regexp : 정규표현식을 활용한 조회
+--  not regexp 도 활용가능
+select * from post where title regexp'[a-z]'; --하나라도 알파벳 소문자가 들어있으면
+select * from post where title regexp'[가-힣]'; --하나라도 한글이 포맷돼 있으면
+
+-- 타입변환(날짜변환 (cast, convert): 숫자 -> 날짜, 문지 -> 날짜)
+select cast(20241119 as date);
+select cast('20241120' as date);
+select convert(20241121, date);
+select convert('20241122', date);
+-- 문자->숫자 변환 //unsigned = int
+select cast('12' as int);
+
+-- 날짜조회 방법
+-- like패턴, 부등호 활용, date_format
+select * from post where created_time like '2024-11%'; -- 문자열처럼 조회
+select * from post where created_time >= '2024-01-01'and created_time <= '2024-12-31'
+
+-- date_format활용 (Y,H 대문자로 사용하면 정확하게 출력, 소문자로 사용하면 간략하게 출력)
+select date_format(created_time, '%Y-%m-%d') from post;--년 월 일
+select date_format(created_time, '%H:%i:%s') from post;--시 분 초
+-- 응용예시
+select * from post where date_format(created_time, '%Y' ) = '2024';
+select * from post where cast(date_format(created_time, '%Y')='2024' as unsigned) = 2024 --날짜포맷을 숫자로 출력
+
+-- 오늘현재시간
+select now();
