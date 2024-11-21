@@ -15,7 +15,7 @@ case
 end
 from author;
 
--- ifnull(a,b) : 만약에 a가 null이면 b반환 , null이 아니면 a반환
+-- ifnull(name,b) : 만약에 a가 null이면 b반환 , null이 아니면 a반환
 select id,email, ifnull(column,'익명사용자') as '사용자명' from author;
 select id,email, ifnull(name,'익명사용자') as '사용자명' from author;
 

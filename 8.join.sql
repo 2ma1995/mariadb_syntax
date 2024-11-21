@@ -14,6 +14,7 @@ select p.* , a.email from post p inner join author a on a.id = author_id;
 select p.title, p.contents, a.email from post p inner join author a on a.id = author_id;
 
 -- 모든글목록을 출력하고, 만약에 글쓴이가 있다면 이메일 정보를출력
+
 -- left outer join -> left join으로 생략가능
 -- 글을 한번도 안쓴 글쓴이 정보는 포함X
 select p.*, a.email from post p left join author a on a.id = p.author_id ;
@@ -55,3 +56,77 @@ select a.email, (select count(*) from post where author_id = a.id) from author a
 
 -- from절 안에 서브쿼리
 select a.name from (select * from author) as a;
+
+-- 없어진 기록 찾기 https://school.programmers.co.kr/learn/courses/30/lessons/59042
+-- 서브쿼리
+select * from animal_outs where animal_id not in (select animal_id from aninmal_ins)
+-- join
+SELECT o.ANIMAL_ID , name
+from ANIMAL_OUTS o
+left join ANIMAL_INS n  on n.ANIMAL_ID = o.ANIMAL_ID
+where i.animal_id is null;
+order by ANIMAL_ID
+
+-- 집계함수
+select count(*) from author;
+select sum(price) from post;
+select avg(price) from post;
+
+--소수점 첫번째자리에서 반올림해서 소수점을 없앰
+select round(avg(price),0) from post;
+
+-- group by : 그룹화된 데이터를 하나의 행(row)처럼 취급
+-- author_id로 그룹핑 하였으면, 그외의 컬럼을 조회하는 것은 적절치 않음
+select author_id from post group by author_id;
+-- group by 와 집계함수
+-- 아래 쿼리에서 *은 그룹화된 데이터내에서의 갯수
+select author_id, count(*) from post group by author_id;
+select author_id, count(*), sum(price) from post group by author_id;
+
+-- author의 email과 author별로 본인이 쓴 글의 갯수를 출력
+--join과 group by, 집계함수 활용한 글의 개수 출력
+select a.email, (select count(*) from post where author_id = a.id) from author a; 
+
+select a.email, count(p.id)  
+from author a 
+left join post p on a.id = p.author_id
+group by a.email;
+
+-- where와 group by
+-- 연도별 post 글의갯수 출력, 연도가 null인 값은 제외
+select date_format(created_time,'%Y') as year , count(*) from post
+where created_time is not null
+group by year
+
+-- 자동차 종류별 특정 옵션이 포함된 자동차 수 구하기
+SELECT CAR_TYPE , COUNT(CAR_ID) as CARS
+from CAR_RENTAL_COMPANY_CAR
+where OPTIONS like '%통풍시트%' or
+      OPTIONS like '%열선시트%' or
+      OPTIONS like '%가죽시트%'
+group by CAR_TYPE
+order by CAR_TYPE
+;
+-- 입양 시각 구하기
+SELECT date_format(DATETIME, '%H')as hour,count(*) as count 
+from ANIMAL_OUTS
+where DATE_FORMAT(DATETIME,'%H') >= 09 and  DATE_FORMAT(DATETIME,'%H') < 20
+group by  hour order by hour
+;
+-- having : group by를 통해 나온 집계값에 대한 조건
+-- 글을 2개 이상 쓴사람에 대한 정보 조회
+select author_id from post group by author_id having count(*)>=2;
+select author_id ,count(*)as count from post group by author_id having count>=2;
+
+-- 동명 동물 수 찾기https://school.programmers.co.kr/learn/courses/30/lessons/59041
+select name , count(*)as count from animal_ins where name is not null group by name having count >=1 order by name;
+
+-- 다중열 group by
+-- post에서 작성자별로 만든 제목의 갯수를 출력하세요.
+select author_id,title,count(*) from post group by author_id, title;
+
+-- 재구매가 일어난 상품과 회원 리스트 구하기 https://school.programmers.co.kr/learn/courses/30/lessons/131536
+SELECT USER_ID, PRODUCT_ID from ONLINE_SALE
+GROUP BY  USER_ID, PRODUCT_ID HAVING COUNT(*) >= 2  
+ORDER BY USER_ID, PRODUCT_ID DESC;
+
